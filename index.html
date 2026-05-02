@@ -316,6 +316,32 @@
       color: white;
     }
 
+    /* VIDEO LINKS */
+    .video-links {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #2e2a42;
+    }
+
+    .video-link {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: rgba(239,68,68,0.1);
+      color: #f87171;
+      text-decoration: none;
+      font-weight: 600;
+      border: 1px solid rgba(239,68,68,0.2);
+      transition: background 0.15s;
+    }
+
+    .video-link:hover {
+      background: rgba(239,68,68,0.2);
+    }
+
     /* SPLIT MODE */
     .split-note {
       text-align: center;
@@ -383,7 +409,12 @@
       time: '~4 min',
       band: 'Medium band',
       sensory: 'Blanket under your back',
-      highlight: null
+      highlight: null,
+      videos: [
+        { label: '⚡ Quick form', url: 'https://www.youtube.com/shorts/R1OXPHRqehw' },
+        { label: '📋 Step-by-step', url: 'https://www.youtube.com/watch?v=tqp5XQPpTxY' },
+        { label: '🔧 Fix mistakes', url: 'https://www.youtube.com/watch?v=8bbE6adQLS4' }
+      ]
     },
     {
       id: 'kickback',
@@ -395,7 +426,12 @@
       time: '~5 min',
       band: 'Easy band (ankles)',
       sensory: null,
-      highlight: '★ Your main lower glute move'
+      highlight: '★ Your main lower glute move',
+      videos: [
+        { label: '⚡ Quick form', url: 'https://www.youtube.com/shorts/PAn8G4qgGWA' },
+        { label: '📋 Wall-supported', url: 'https://www.youtube.com/watch?v=qzqDHSDTc0U' },
+        { label: '🔧 Max squeeze', url: 'https://www.youtube.com/watch?v=N6Ym_p7OQvM' }
+      ]
     },
     {
       id: 'stepup',
@@ -407,7 +443,12 @@
       time: '~4 min',
       band: null,
       sensory: null,
-      highlight: null
+      highlight: null,
+      videos: [
+        { label: '⚡ Home stairs', url: 'https://www.youtube.com/shorts/P_z0-EFrQ2Y' },
+        { label: '📋 Physio form', url: 'https://www.youtube.com/watch?v=T7PT5nVHE6s' },
+        { label: '🔧 Glute focus', url: 'https://www.youtube.com/watch?v=7M7799Z0mUA' }
+      ]
     },
     {
       id: 'clamshell',
@@ -419,7 +460,12 @@
       time: '~4 min',
       band: 'Medium band',
       sensory: 'Blanket under your hip',
-      highlight: null
+      highlight: null,
+      videos: [
+        { label: '⚡ Quick form', url: 'https://www.youtube.com/shorts/k9Mv1f44Y30' },
+        { label: '📋 Hip alignment', url: 'https://www.youtube.com/watch?v=EG5_gXcfozw' },
+        { label: '🔧 Band tips', url: 'https://www.youtube.com/watch?v=C75si18Y3yA' }
+      ]
     }
   ];
 
@@ -483,6 +529,9 @@
             <div class="set-count">${completedSets}/${ex.sets}</div>
           </div>
           <div class="sets-row">${setsHtml}</div>
+          <div class="video-links">
+            ${ex.videos.map(v => `<a class="video-link" href="${v.url}" target="_blank" rel="noopener">${v.label}</a>`).join('')}
+          </div>
         </div>
       `;
     });
