@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Glute Tracker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f13;
+      color: #f0eef8;
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #e8b4f8;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #9990b8;
+      margin-bottom: 24px;
+    }
+
+    /* DATE */
+    .date-bar {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #c4bde0;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    /* EXERCISE CARD */
+    .exercise-card {
+      background: #1a1826;
+      border: 1px solid #2e2a42;
+      border-radius: 16px;
+      padding: 18px 16px;
+      margin-bottom: 14px;
+    }
+
+    .exercise-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .exercise-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #e8b4f8;
+    }
+
+    .exercise-highlight {
+      font-size: 0.7rem;
+      color: #e879f9;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin: 3px 0 4px;
+      font-weight: 700;
+    }
+
+    .exercise-detail {
+      font-size: 0.78rem;
+      color: #7a728f;
+      margin-top: 3px;
+      line-height: 1.5;
+    }
+
+    .exercise-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0 2px;
+    }
+
+    .tag {
+      font-size: 0.72rem;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-weight: 600;
+    }
+
+    .tag-reps  { background: rgba(168,85,247,0.18); color: #c084fc; }
+    .tag-band  { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .tag-time  { background: rgba(52,211,153,0.1);  color: #6ee7b7; }
+    .tag-sensory { background: rgba(99,102,241,0.15); color: #a5b4fc; }
+
+    .set-count {
+      font-size: 0.8rem;
+      color: #9990b8;
+      background: #2a2540;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* SET BUTTONS */
+    .sets-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .set-btn {
+      flex: 1;
+      min-width: 60px;
+      padding: 14px 8px;
+      border-radius: 12px;
+      border: 2px solid #2e2a42;
+      background: #12101e;
+      color: #9990b8;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+    }
+
+    .set-btn:hover {
+      border-color: #e8b4f8;
+      color: #e8b4f8;
+    }
+
+    .set-btn.done {
+      background: #3d2a5e;
+      border-color: #b47de8;
+      color: #f0e4ff;
+    }
+
+    .set-btn.done::before {
+      content: '✓ ';
+    }
+
+    /* PROGRESS BAR */
+    .progress-wrap {
+      background: #1a1826;
+      border: 1px solid #2e2a42;
+      border-radius: 16px;
+      padding: 18px 16px;
+      margin-bottom: 20px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #9990b8;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar-bg {
+      background: #2a2540;
+      border-radius: 99px;
+      height: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #b47de8, #e8b4f8);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    /* LOG BUTTON */
+    .log-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #7c3aed, #b47de8);
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: opacity 0.2s;
+    }
+
+    .log-btn:hover { opacity: 0.9; }
+    .log-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .reset-btn {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      color: #6b6385;
+      font-size: 0.85rem;
+      border: 1px solid #2e2a42;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .reset-btn:hover { color: #9990b8; border-color: #4a4460; }
+
+    /* STATUS */
+    .status-msg {
+      text-align: center;
+      font-size: 0.85rem;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .status-msg.success { background: #1a3a2a; color: #7ee8a2; display: block; }
+    .status-msg.error   { background: #3a1a1a; color: #e87e7e; display: block; }
+    .status-msg.loading { background: #1e1a2e; color: #b47de8; display: block; }
+
+    /* SETUP PANEL */
+    .setup-toggle {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .setup-toggle button {
+      background: none;
+      border: none;
+      color: #6b6385;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .setup-panel {
+      background: #1a1826;
+      border: 1px solid #2e2a42;
+      border-radius: 16px;
+      padding: 18px 16px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .setup-panel.open { display: block; }
+
+    .setup-panel label {
+      display: block;
+      font-size: 0.8rem;
+      color: #9990b8;
+      margin-bottom: 6px;
+    }
+
+    .setup-panel input {
+      width: 100%;
+      background: #12101e;
+      border: 1px solid #2e2a42;
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: #f0eef8;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+
+    .setup-panel input:focus {
+      outline: none;
+      border-color: #b47de8;
+    }
+
+    .save-btn {
+      background: #3d2a5e;
+      border: none;
+      color: #e8b4f8;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* STREAK */
+    .streak-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 4px;
+      margin-bottom: 20px;
+    }
+
+    .streak-dot {
+      flex: 1;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #2a2540;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: #6b6385;
+      font-weight: 700;
+      min-width: 0;
+    }
+
+    .streak-dot.active {
+      background: #3d2a5e;
+      color: #e8b4f8;
+    }
+
+    .streak-dot.today {
+      background: linear-gradient(135deg, #7c3aed, #b47de8);
+      color: white;
+    }
+
+    /* SPLIT MODE */
+    .split-note {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #6b6385;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>🍑 Glute Tracker</h1>
+  <p class="subtitle">3× a week · Same order every time</p>
+
+  <div class="date-bar" id="dateBar"></div>
+
+  <!-- Streak -->
+  <div class="streak-bar" id="streakBar"></div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>Today's progress</span>
+      <span id="progressText">0 / 11 sets</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Exercises -->
+  <div id="exerciseList"></div>
+
+  <p class="split-note">💡 Can't do it all at once? Do floor moves now, standing moves later — it counts as one session.</p>
+
+  <!-- Status -->
+  <div class="status-msg" id="statusMsg"></div>
+
+  <!-- Buttons -->
+  <button class="log-btn" id="logBtn" onclick="logToSheets()">Log Workout to Google Sheets</button>
+  <button class="reset-btn" id="resetBtn" onclick="resetAll()" style="display:none">Reset for next session</button>
+
+  <!-- Setup -->
+  <div class="setup-toggle">
+    <button onclick="toggleSetup()">⚙️ Setup / change Google Sheets URL</button>
+  </div>
+
+  <div class="setup-panel" id="setupPanel">
+    <label>Your Google Apps Script Web App URL</label>
+    <input type="url" id="sheetsUrl" placeholder="https://script.google.com/macros/s/..." />
+    <button class="save-btn" onclick="saveSetup()">Save</button>
+  </div>
+
+<script>
+  const EXERCISES = [
+    {
+      id: 'bridge',
+      emoji: '🛏️',
+      name: 'Glute Bridge',
+      detail: 'Band above knees · Push knees OUT as you lift · Hold 2s at top',
+      sets: 3,
+      reps: '15 reps',
+      time: '~4 min',
+      band: 'Medium band',
+      sensory: 'Blanket under your back',
+      highlight: null
+    },
+    {
+      id: 'kickback',
+      emoji: '🦵',
+      name: 'Standing Kickback',
+      detail: 'Hold stair railing · Kick straight back · Squeeze at the top',
+      sets: 3,
+      reps: '12 each side',
+      time: '~5 min',
+      band: 'Easy band (ankles)',
+      sensory: null,
+      highlight: '★ Your main lower glute move'
+    },
+    {
+      id: 'stepup',
+      emoji: '🪜',
+      name: 'Stair Step-Up',
+      detail: 'Drive through your HEEL · Go SLOW on the way down — that\'s where the magic happens',
+      sets: 3,
+      reps: '10 each side',
+      time: '~4 min',
+      band: null,
+      sensory: null,
+      highlight: null
+    },
+    {
+      id: 'clamshell',
+      emoji: '🐛',
+      name: 'Clamshell',
+      detail: 'On your side · Band above knees · Open top knee like a clamshell · Slow and controlled',
+      sets: 2,
+      reps: '15 each side',
+      time: '~4 min',
+      band: 'Medium band',
+      sensory: 'Blanket under your hip',
+      highlight: null
+    }
+  ];
+
+  const TOTAL_SETS = EXERCISES.reduce((sum, e) => sum + e.sets, 0);
+  let state = {}; // { exerciseId: { 1: bool, 2: bool, ... } }
+
+  function init() {
+    // Date
+    const now = new Date();
+    document.getElementById('dateBar').textContent = now.toLocaleDateString('en-CA', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    // Load saved URL
+    const saved = localStorage.getItem('sheetsUrl');
+    if (saved) document.getElementById('sheetsUrl').value = saved;
+
+    // Load today's state
+    const todayKey = 'state_' + now.toISOString().slice(0, 10);
+    const savedState = localStorage.getItem(todayKey);
+    state = savedState ? JSON.parse(savedState) : {};
+
+    renderExercises();
+    renderStreak();
+    updateProgress();
+  }
+
+  function renderExercises() {
+    const list = document.getElementById('exerciseList');
+    list.innerHTML = '';
+
+    EXERCISES.forEach(ex => {
+      if (!state[ex.id]) state[ex.id] = {};
+
+      const completedSets = Object.values(state[ex.id]).filter(Boolean).length;
+
+      const setsHtml = Array.from({length: ex.sets}, (_, i) => {
+        const setNum = i + 1;
+        const done = state[ex.id][setNum] || false;
+        return `<button class="set-btn ${done ? 'done' : ''}" onclick="toggleSet('${ex.id}', ${setNum})">Set ${setNum}</button>`;
+      }).join('');
+
+      const tagsHtml = `
+        <div class="exercise-tags">
+          <span class="tag tag-reps">${ex.reps}</span>
+          ${ex.time ? `<span class="tag tag-time">${ex.time}</span>` : ''}
+          ${ex.band ? `<span class="tag tag-band">${ex.band}</span>` : ''}
+          ${ex.sensory ? `<span class="tag tag-sensory">🤍 ${ex.sensory}</span>` : ''}
+        </div>
+      `;
+
+      list.innerHTML += `
+        <div class="exercise-card" id="card-${ex.id}">
+          <div class="exercise-header">
+            <div style="flex:1">
+              <div class="exercise-name">${ex.emoji} ${ex.name}</div>
+              ${ex.highlight ? `<div class="exercise-highlight">${ex.highlight}</div>` : ''}
+              <div class="exercise-detail">${ex.detail}</div>
+              ${tagsHtml}
+            </div>
+            <div class="set-count">${completedSets}/${ex.sets}</div>
+          </div>
+          <div class="sets-row">${setsHtml}</div>
+        </div>
+      `;
+    });
+  }
+
+  function toggleSet(exerciseId, setNum) {
+    if (!state[exerciseId]) state[exerciseId] = {};
+    state[exerciseId][setNum] = !state[exerciseId][setNum];
+    saveState();
+    renderExercises();
+    updateProgress();
+  }
+
+  function updateProgress() {
+    let done = 0;
+    EXERCISES.forEach(ex => {
+      if (state[ex.id]) {
+        done += Object.values(state[ex.id]).filter(Boolean).length;
+      }
+    });
+    const pct = Math.round((done / TOTAL_SETS) * 100);
+    document.getElementById('progressText').textContent = `${done} / ${TOTAL_SETS} sets`;
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    document.getElementById('resetBtn').style.display = done > 0 ? 'block' : 'none';
+  }
+
+  function saveState() {
+    const todayKey = 'state_' + new Date().toISOString().slice(0, 10);
+    localStorage.setItem(todayKey, JSON.stringify(state));
+  }
+
+  function resetAll() {
+    if (!confirm('Reset all sets for today?')) return;
+    state = {};
+    saveState();
+    renderExercises();
+    updateProgress();
+    document.getElementById('statusMsg').className = 'status-msg';
+  }
+
+  // ---- STREAK ----
+  function renderStreak() {
+    const dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    const bar = document.getElementById('streakBar');
+    const today = new Date();
+    const DAYS_TO_SHOW = 7;
+
+    bar.innerHTML = Array.from({length: DAYS_TO_SHOW}, (_, i) => {
+      const date = new Date(today);
+      date.setDate(today.getDate() - (DAYS_TO_SHOW - 1 - i));
+      const key = 'state_' + date.toISOString().slice(0, 10);
+      const saved = localStorage.getItem(key);
+      const hasActivity = saved && Object.values(JSON.parse(saved)).some(ex =>
+        Object.values(ex).some(Boolean)
+      );
+      const isToday = i === DAYS_TO_SHOW - 1;
+      const cls = isToday ? 'today' : hasActivity ? 'active' : '';
+      const label = dayLetters[date.getDay()];
+      return `<div class="streak-dot ${cls}" title="${date.toDateString()}">${label}</div>`;
+    }).join('');
+  }
+
+  // ---- GOOGLE SHEETS LOGGING ----
+  async function logToSheets() {
+    const url = localStorage.getItem('sheetsUrl');
+    if (!url) {
+      showStatus('error', 'No Google Sheets URL saved yet — tap ⚙️ Setup below to add it.');
+      return;
+    }
+
+    let totalDone = 0;
+    const exerciseData = EXERCISES.map(ex => {
+      const done = ex.id in state ? Object.values(state[ex.id]).filter(Boolean).length : 0;
+      totalDone += done;
+      return { name: ex.name, setsCompleted: done, setsTotal: ex.sets };
+    });
+
+    const now = new Date();
+    const payload = {
+      date: now.toISOString().slice(0, 10),
+      time: now.toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' }),
+      totalSets: totalDone,
+      totalPossible: TOTAL_SETS,
+      fullSession: totalDone === TOTAL_SETS,
+      exercises: exerciseData
+    };
+
+    showStatus('loading', 'Logging to Google Sheets…');
+    document.getElementById('logBtn').disabled = true;
+
+    try {
+      const encodedData = encodeURIComponent(JSON.stringify(payload));
+      const response = await fetch(`${url}?data=${encodedData}`, { method: 'GET', mode: 'no-cors' });
+      showStatus('success', `✓ Logged! ${totalDone}/${TOTAL_SETS} sets recorded for ${payload.date}`);
+
+      // Mark as logged
+      const todayKey = 'logged_' + now.toISOString().slice(0, 10);
+      localStorage.setItem(todayKey, 'true');
+    } catch (err) {
+      showStatus('error', 'Could not reach Google Sheets. Make sure Sheets script is deployed and URL is correct.');
+    }
+
+    document.getElementById('logBtn').disabled = false;
+  }
+
+  function showStatus(type, msg) {
+    const el = document.getElementById('statusMsg');
+    el.className = 'status-msg ' + type;
+    el.textContent = msg;
+  }
+
+  // ---- SETUP ----
+  function toggleSetup() {
+    document.getElementById('setupPanel').classList.toggle('open');
+  }
+
+  function saveSetup() {
+    const url = document.getElementById('sheetsUrl').value.trim();
+    if (!url) return;
+    localStorage.setItem('sheetsUrl', url);
+    document.getElementById('setupPanel').classList.remove('open');
+    showStatus('success', '✓ URL saved! Your tracker is connected to Google Sheets.');
+  }
+
+  init();
+</script>
+</div>
+</body>
+</html>
